@@ -17,15 +17,13 @@ sys_creat:
         syscall
         ret
 
-sys_read_byte:
+sys_read:
         xor eax, eax
-        mov edx, 1
         syscall
         ret
 
-sys_write_byte:
+sys_write:
         mov eax, 1
-        mov edx, eax
         syscall
         ret
 

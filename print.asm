@@ -5,7 +5,6 @@ len:
         inc rax
         cmp byte [rax], 0
         jne .loop
-
         sub rax, rdi
         ret
 
@@ -20,7 +19,9 @@ print_str:
 
 print_ch:
         mov eax, 1
+        mov esi, edi
         mov edi, eax
         mov edx, eax 
         syscall
         ret
+
