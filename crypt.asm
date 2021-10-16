@@ -38,10 +38,10 @@ start:
         test rax, rax                ; if size(KEYFILE) = 0
         jz keyfile_size_error
         
-        ; create CRYPTFILE
+        ; create OUTPUT
         mov rdi, [rbp + 40]
         call sys_creat
-        push rax                     ; [rbp - 24] (fd for CRYPTFILE)
+        push rax                     ; [rbp - 24] (fd for OUTPUT)
 
 .read_target_loop:
         mov rdi, [rbp - 8]           ; fd for TARGET
@@ -58,7 +58,7 @@ start:
 
         mov rax, [read_buffer]
         xor [write_buffer], rax
-        mov rdi, [rbp - 24]         ; fd for CRYPTFILE
+        mov rdi, [rbp - 24]         ; fd for OUTPUT
         call sys_write_byte
 
         jmp .read_target_loop
@@ -91,7 +91,7 @@ target_size_error:
         jmp die
 
 segment readable
-usage_msg              db 'Usage: crypt KEYFILE TARGET CRYPTFILE', 0x0a, 0x0
+usage_msg              db 'Usage: crypt KEYFILE TARGET OUTPUT', 0x0a, 0x0
 keyfile_error_msg      db 'Failed to open KEYFILE', 0x0a, 0x0
 target_error_msg       db 'Failed to open TARGET', 0x0a, 0x0
 keyfile_size_error_msg db 'ERROR: size(KEYFILE) = 0', 0x0a, 0x0
