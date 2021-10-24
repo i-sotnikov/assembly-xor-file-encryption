@@ -41,6 +41,11 @@ sys_fstat_size:
         mov rax, qword [statbuf + ST_SIZE_OFFSET]
         ret
 
+sys_close:
+        mov eax, 3
+        syscall
+        ret
+
 sys_exit_0:
         mov rsp, rbp
         pop rbp

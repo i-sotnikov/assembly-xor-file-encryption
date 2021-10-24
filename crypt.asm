@@ -18,30 +18,30 @@ start:
         ; open TARGET for reading
         mov rdi, [rbp + 32]          ; argv[2] (TARGET)
         call sys_open_r
-        test eax, eax
+        test rax, rax
         js target_error
         push rax                     ; [rbp - 8] (fd for TARGET)
 
-        mov rdi, rax
+        mov edi, eax
         call sys_fstat_size
         mov rbx, rax                 ; size(TARGET)
 
         ; open KEYFILE for reading
         mov rdi, [rbp + 24]          ; argv[1] (KEYFILE)
         call sys_open_r
-        test eax, eax
+        test rax, rax
         js keyfile_error
         push rax                     ; [rbp - 16] (fd for KEYFILE)
 
-        mov rdi, rax
+        mov edi, eax
         call sys_fstat_size          ; size(KEYFILE) in RAX
-        test ebx, ebx                ; if size(TARGET) = 0
+        test rbx, rbx                ; if size(TARGET) = 0
         jz target_size_error
         cmp rax, CHUNK_SIZE          ; if size(KEYFILE) < CHUNK_SIZE
         jl keyfile_size_error
         
         ; create OUTPUT
-        mov rdi, [rbp + 40]
+        mov rdi, [rbp + 40]          ; argv[3] (OUTPUT)
         call sys_creat
         push rax                     ; [rbp - 24] (fd for OUTPUT)
 
@@ -52,9 +52,9 @@ start:
         mov rsi, read_buffer 
         mov edx, CHUNK_SIZE
         call sys_read
-        test eax, eax
+        test rax, rax
         jz sys_exit_0
-        mov [rsp], rax               ; bytes read from TARGET
+        mov [rsp], eax               ; bytes read from TARGET
 .read_keyfile_loop:
         mov edi, [rbp - 16]          ; fd for KEYFILE 
         mov rsi, write_buffer
@@ -91,6 +91,8 @@ usage:
         jmp die
 
 keyfile_error:
+        mov edi, [rbp - 8]
+        call sys_close
         mov rdi, keyfile_error_msg
         jmp die 
 
@@ -99,10 +101,18 @@ target_error:
         jmp die
 
 keyfile_size_error:
+        mov edi, [rbp - 8]
+        call sys_close
+        mov edi, [rbp - 16]
+        call sys_close
         mov rdi, keyfile_size_error_msg
         jmp die
 
 target_size_error:
+        mov edi, [rbp - 8]
+        call sys_close
+        mov edi, [rbp - 16]
+        call sys_close
         mov rdi, target_size_error_msg
         jmp die
 
